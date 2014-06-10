@@ -12,7 +12,7 @@ Classes
 
 Behaves exactly the same as a Move object from the
 [chess](http://github.com/lightsquaredev/chess) library and has a toJSON which outputs
-a jsonchess-conformant JSON.
+jsonchess-conformant JSON.
 
 The class is closed behind fromMove (generate an instance based on a chess Move) and
 fromJson (generate an instance based on jsonchess JSON)
