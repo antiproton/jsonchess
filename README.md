@@ -5,6 +5,18 @@ A simple protocol for playing chess over WebSockets or other full duplex connect
 This project documents the messages sent between the server and clients and provides
 Javascript classes and protocol constants to be used on both ends.
 
+Classes
+-------
+
+###Move
+
+Behaves exactly the same as a Move object from the
+[chess](http://github.com/lightsquaredev/chess) library and has a toJSON which outputs
+a jsonchess-conformant representation of a move.
+
+The class is closed behind fromMove (generate an instance based on a chess Move) and
+fromJson (generate an instance based on jsonchess JSON)
+
 Constants
 ---------
 
