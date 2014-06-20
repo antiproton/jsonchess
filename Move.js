@@ -3,6 +3,7 @@ define(function(require) {
 	var PieceType = require("chess/PieceType");
 	var Piece = require("chess/Piece");
 	var Colour = require("chess/Colour");
+	var Square = require("chess/Square");
 	
 	function Move(details) {
 		this._details = details;
@@ -64,6 +65,14 @@ define(function(require) {
 		return true;
 	}
 	
+	Move.prototype.getFrom = function() {
+		return Square.fromAlgebraic(this._details.from);
+	}
+	
+	Move.prototype.getTo = function() {
+		return Square.fromAlgebraic(this._details.to);
+	}
+	
 	Move.prototype.toJSON = function() {
 		return this._details;
 	}
@@ -83,6 +92,8 @@ define(function(require) {
 					fullLabel: move.getFullLabel(),
 					colour: move.getColour().fenString,
 					fullmove: move.getFullmove(),
+					from: move.getFrom().algebraic,
+					to: move.getTo().algebraic,
 					isCheck: move.isCheck(),
 					isMate: move.isMate(),
 					isCastling: move.isCastling(),
