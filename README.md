@@ -15,7 +15,7 @@ Behaves exactly the same as a Move object from the
 jsonchess-conformant JSON.
 
 The class is closed behind fromMove (generate an instance based on a chess Move) and
-fromJson (generate an instance based on jsonchess JSON)
+fromJson (generate an instance based on jsonchess JSON).
 
 Constants
 ---------
