@@ -36,6 +36,10 @@ define(function(require) {
 		return this._to;
 	}
 	
+	Premove.prototype.getPromoteTo = function() {
+		return this._promoteTo;
+	}
+	
 	Premove.prototype._check = function() {
 		if(this._piece.type === PieceType.pawn) {
 			this._checkPawnMove();
