@@ -5,7 +5,7 @@ define(function(require) {
 	
 	function Premove(position, from, to, promoteTo) {
 		this._isValid = false;
-		this._position = position.getCopy();
+		this._position = position;
 		this._from = from;
 		this._to = to;
 		this._promoteTo = promoteTo || PieceType.queen;
