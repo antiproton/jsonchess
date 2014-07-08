@@ -2,6 +2,7 @@ define(function(require) {
 	var PieceType = require("chess/PieceType");
 	var Square = require("chess/Square");
 	var Piece = require("chess/Piece");
+	var Coords = require("chess/Coords");
 	
 	function Premove(position, from, to, promoteTo) {
 		this._isValid = false;
