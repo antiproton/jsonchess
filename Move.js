@@ -104,6 +104,18 @@ define(function(require) {
 					time: move.getTime()
 				});
 			}
+		},
+		
+		getShortJSON: function(move, index) {
+			var promoteTo = move.getPromoteTo();
+			
+			return {
+				from: move.getFrom().squareNo,
+				to: move.getTo().squareNo,
+				promoteTo: promoteTo === PieceType.queen ? undefined : promoteTo.sanString,
+				index: index,
+				time: move.getTime()
+			};
 		}
 	};
 });
