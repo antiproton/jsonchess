@@ -17,6 +17,10 @@ jsonchess-conformant JSON.
 The class is closed behind fromMove (generate an instance based on a chess Move) and
 fromJson (generate an instance based on jsonchess JSON).
 
+The module also has a method called getShortJSON.  This method takes a Move and an index,
+and returns JSON with just the details necessary to make the move (from, to, etc).  This
+is the representation sent to players and spectators when new moves are made.
+
 Constants
 ---------
 
