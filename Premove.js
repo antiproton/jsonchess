@@ -165,20 +165,5 @@ define(function(require) {
 		};
 	}
 	
-	Premove.fromJSON = function(json, position) {
-		var promoteTo = PieceType.queen;
-		
-		if(json.promoteTo) {
-			promoteTo = PieceType.fromSanString(json.promoteTo);
-		}
-		
-		return new Premove(
-			position,
-			Square.fromAlgebraic(json.from),
-			Square.fromAlgebraic(json.to),
-			promoteTo
-		);
-	};
-	
 	return Premove;
 });
