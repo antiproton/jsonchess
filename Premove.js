@@ -159,8 +159,8 @@ define(function(require) {
 	
 	Premove.prototype.toJSON = function() {
 		return {
-			from: this._from.algebraic,
-			to: this._to.algebraic,
+			from: this._from.squareNo,
+			to: this._to.squareNo,
 			promoteTo: (this._isPromotion ? this._promoteTo.sanString : undefined)
 		};
 	}
