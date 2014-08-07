@@ -36,6 +36,7 @@ Premove
 -------
 
 Checks the validity of a premove and outputs a jsonchess premove structure from
-toJSON.
+toJSON - see the [premove module][2].
 
 [1]:http://jsonchess.org
+[2]:http://jsonchess.org/modules/premove
