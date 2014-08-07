@@ -2,9 +2,8 @@ jsonchess
 =========
 
 jsonchess is a client/server protocol for playing chess online.  This project
-documents the messages sent between the server and clients, and provides some
-JavaScript code to define protocol constants and assist with the implementation
-on both ends.
+provides some JavaScript code to define protocol constants and assist with the
+implementation on both ends.
 
 The protocol consists of a core and several "modules".  For full documentation,
 see [jsonchess.org][1].
