@@ -27,7 +27,8 @@ Move
 ----
 
 Methods for converting between various jsonchess structures, and Move objects
-with getters and setters.
+with getters and setters.  The Move interface is designed to be compatible with
+Moves from the [chess](http://github.com/gushogg-blake/chess) library.
 
 Premove
 -------
