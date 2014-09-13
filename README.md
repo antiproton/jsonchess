@@ -44,3 +44,10 @@ Premove
 
 Checks the validity of a premove and outputs a jsonchess premove structure from
 toJSON.
+
+chatMessageTypes
+-----------
+
+The types of message that can be sent on the server-wide chatroom; e.g. messages
+from other users, messages coming from admin, automatically generated server messages
+etc.
