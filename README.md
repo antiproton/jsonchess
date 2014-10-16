@@ -58,36 +58,30 @@ The currently defined feeds are:
 
 Each JavaScript file in this repo is described briefly below.
 
-glicko2
--------
+###glicko2
 
 Constants related to the glicko2 rating system.
 
-gameRestoration
----------------
+###gameRestoration
 
 Constants related to the game restoration module.
 
-constants
----------
+###constants
 
 General constants.
 
-Move
-----
+###Move
 
 Methods for converting between various jsonchess structures, and Move objects
 with getters and setters.  The Move interface is designed to be compatible with
 Moves from the [chess](http://github.com/gushogg-blake/chess) library.
 
-Premove
--------
+###Premove
 
 Checks the validity of a premove and outputs a jsonchess premove structure from
 toJSON.
 
-chatMessageTypes
------------
+###chatMessageTypes
 
 The types of message that can be sent on the server-wide chatroom; e.g. messages
 from other users, messages coming from admin, automatically generated server messages
