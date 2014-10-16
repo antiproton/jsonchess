@@ -37,8 +37,6 @@ game with id "123" looks like this:
 		}
 	}
 
-The messages exchanged are of the form:
-
 Feeds
 -----
 
