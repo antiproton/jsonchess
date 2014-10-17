@@ -52,7 +52,7 @@ The currently defined feeds are:
 	the current position, and the last move played, if applicable.
 - `users_online` - the client receives updates when a user connects or disconnects,
 	and receives the full list of online users upon activating the feed.
-- `seeks` - the client receives updates when a new seek is created (if the seek
+- `open_seeks` - the client receives updates when a new seek is created (if the seek
 	options would allow the player to accept) and when a seek expires.  (The client
 	requests the full seek list separately.)
 
