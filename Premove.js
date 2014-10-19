@@ -55,8 +55,12 @@ define(function(require) {
 		}
 		
 		if(this._isValid) {
+			this._position.setPiece(
+				this._to,
+				(this._isPromotion ? Piece.get(this._promoteTo, this._colour) : this._piece)
+			);
+			
 			this._position.setPiece(this._from, null);
-			this._position.setPiece(this._to, this._piece);
 		}
 	}
 	
