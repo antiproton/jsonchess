@@ -1,120 +1,121 @@
 define(function(require) {
-	var Position = require("chess/Position");
 	var PieceType = require("chess/PieceType");
 	var Piece = require("chess/Piece");
 	var Colour = require("chess/Colour");
 	var Square = require("chess/Square");
 	
-	function Move(details) {
-		this._details = details;
-	}
-	
-	Move.prototype.getLabel = function() {
-		return this._details.label;
-	}
-	
-	Move.prototype.getFullLabel = function() {
-		return this._details.fullLabel;
-	}
-	
-	Move.prototype.getColour = function() {
-		return Colour.fromFenString(this._details.colour);
-	}
-	
-	Move.prototype.getFullmove = function() {
-		return this._details.fullmove;
-	}
-	
-	Move.prototype.getCapturedPiece = function() {
-		return (this._details.capturedPiece ? Piece.fromFenString(this._details.capturedPiece) : null);
-	}
-	
-	Move.prototype.isCheck = function() {
-		return this._details.isCheck;
-	}
-	
-	Move.prototype.isMate = function() {
-		return this._details.isMate;
-	}
-	
-	Move.prototype.isCastling = function() {
-		return this._details.isCastling;
-	}
-	
-	Move.prototype.isPromotion = function() {
-		return this._details.isPromotion;
-	}
-	
-	Move.prototype.getPromoteTo = function() {
-		return (this._details.promoteTo ? PieceType.fromSanString(this._details.promoteTo) : null);
-	}
-	
-	Move.prototype.getPositionAfter = function() {
-		return new Position(this._details.resultingFen);
-	}
-	
-	Move.prototype.getTime = function() {
-		return this._details.time;
-	}
-	
-	Move.prototype.setTime = function(time) {
-		this._details.time = time;
-	}
-	
-	Move.prototype.isLegal = function() {
-		return true;
-	}
-	
-	Move.prototype.getFrom = function() {
-		return Square.fromAlgebraic(this._details.from);
-	}
-	
-	Move.prototype.getTo = function() {
-		return Square.fromAlgebraic(this._details.to);
-	}
-	
-	Move.prototype.toJSON = function() {
-		return this._details;
-	}
-	
 	return {
-		fromJSON: function(json) {
-			return new Move(json);
-		},
-		
-		fromMove: function(move) {
-			var capturedPiece = move.getCapturedPiece();
-			var promoteTo = move.getPromoteTo();
+		encode: function(move) {
+			var castlingRightsLost = "N";
 			
-			if(move.isLegal()) {
-				return new Move({
-					label: move.getLabel(),
-					fullLabel: move.getFullLabel(),
-					colour: move.getColour().fenString,
-					fullmove: move.getFullmove(),
-					from: move.getFrom().algebraic,
-					to: move.getTo().algebraic,
-					isCheck: move.isCheck(),
-					isMate: move.isMate(),
-					isCastling: move.isCastling(),
-					isPromotion: move.isPromotion(),
-					promoteTo: (promoteTo ? promoteTo.sanString : null),
-					resultingFen: move.getPositionAfter().getFen(),
-					capturedPiece: (capturedPiece ? capturedPiece.fenString : null),
-					time: move.getTime()
-				});
+			if(move.castlingRightsLost.length === 2) {
+				castlingRightsLost = "A";
 			}
+			
+			else if(move.castlingRightsLost.length === 1) {
+				castlingRightsLost = move.castlingRightsLost[0].sanString;
+			}
+			
+			var moveString = ""
+				+ move.fullmove
+				+ "," + move.index
+				+ "," + move.getLabel()
+				+ "," + move.time
+				+ "," + move.from.algebraic
+				+ "," + move.to.algebraic
+				+ "," + castlingRightsLost;
+				
+			
+			if(move.isCastling) {
+				moveString += ""
+					+ ",c,"
+					+ move.castlingRookOrigin.algebraic
+					+ ","
+					+ move.castlingRookDestination.algebraic;
+			}
+			
+			else if(move.isPromotion) {
+				moveString += ",p," + move.promoteTo.type.sanString;
+			}
+			
+			else if(move.isEnPassant) {
+				moveString += ",ep," + move.epTarget.algebraic;
+			}
+			
+			return moveString;
 		},
 		
-		getShortJSON: function(move, index) {
-			var promoteTo = move.getPromoteTo();
+		decode: function(position, moveString) {
+			var positionAfter = position.getCopy();
+			var fields = quickMove.split(",");
+			
+			var fullmove = fields[0];
+			var index = parseInt(fields[1]);
+			var label = fields[2];
+			var time = parseInt(fields[3]);
+			var from = Square.byAlgebraic[fields[4]];
+			var to = Square.byAlgebraic[fields[5]];
+			var castlingRightsLost = fields[6];
+			var type = fields[7];
+			
+			var colour = position.activeColour;
+			var fullmoveDot = (colour === Colour.white ? "." : "...");
+			var isPromotion = false;
+			var promoteTo;
+			var isEnPassant = false;
+			var isCastling = false;
+			var capturedPiece = position.board[to.squareNo];
+			
+			positionAfter.setPiece(from, null);
+			positionAfter.setPiece(to, position.board[from.squareNo]);
+			
+			if(castlingRightsLost !== "N") {
+				if(castlingRightsLost === "K" || castlingRightsLost === "A") {
+					positionAfter.setCastlingRights(colour, "K", false);
+				}
+				
+				if(castlingRightsLost === "Q" || castlingRightsLost === "A") {
+					positionAfter.setCastlingRights(colour, "Q", false);
+				}
+			}
+			
+			if(type === "c") {
+				isCastling = true;
+				
+				var rookFrom = Square.byAlgebraic(fields[8]);
+				var rookTo = Square.byAlgebraic(fields[9]);
+				
+				position.setPiece(rookFrom, null);
+				position.setPiece(rookTo, Piece.pieces[PieceType.rook][colour]);
+			}
+			
+			else if(type === "ep") {
+				isEnPassant = true;
+				capturedPiece = Piece.pieces[PieceType.pawn][colour.opposite];
+				positionAfter.setPiece(Square.byAlgebraic[fields[9]], null);
+			}
+			
+			else if(type === "p") {
+				isPromotion = true;
+				promoteTo = PieceType.fromSanString(fields[9]);
+				positionAfter.setPiece(to, Piece.pieces[promoteTo][colour]);
+			}
 			
 			return {
-				from: move.getFrom().squareNo,
-				to: move.getTo().squareNo,
-				promoteTo: promoteTo === PieceType.queen ? undefined : promoteTo.sanString,
-				index: index,
-				time: move.getTime()
+				fullmove: parseInt(fullmove),
+				label: label,
+				fullLabel: fullmove + fullmoveDot + " " + label,
+				colour: colour,
+				from: from,
+				to: to,
+				isCheck: isCheck,
+				isMate: isMate,
+				isCastling: isCastling,
+				isPromotion: isPromotion,
+				promoteTo: promoteTo,
+				resultingFen: positionAfter.getFen(),
+				capturedPiece: capturedPiece,
+				time: time
 			};
 		}
 	};
