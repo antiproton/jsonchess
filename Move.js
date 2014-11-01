@@ -95,6 +95,13 @@ define(function(require) {
 		decode: function(move, position) {
 			var positionAfter = position.getCopy();
 			
+			var label = move.label;
+			var index = move.index;
+			var fullmove = move.fullmove;
+			var from = move.from;
+			var to = move.to;
+			var type = move.type;
+			
 			var colour = position.activeColour;
 			var fullmoveDot = (colour === Colour.white ? "." : "...");
 			var isPromotion = false;
@@ -103,19 +110,19 @@ define(function(require) {
 			var isCastling = false;
 			var castlingRookFrom = null;
 			var castlingRookTo = null;
-			var capturedPiece = position.board[move.to.squareNo];
-			var piece = position.board[move.from.squareNo];
+			var capturedPiece = position.board[to.squareNo];
+			var piece = position.board[from.squareNo];
 			var isCheck = false;
 			var isMate = false;
 			
-			positionAfter.setPiece(move.from, null);
-			positionAfter.setPiece(move.to, piece);
+			positionAfter.setPiece(from, null);
+			positionAfter.setPiece(to, piece);
 			
 			for(var i = 0; i < move.castlingRightsLost.length; i++) {
 				positionAfter.setCastlingRights(colour, move.castlingRightsLost[i], false);
 			}
 			
-			if(move.type === "c") {
+			if(type === "c") {
 				isCastling = true;
 				
 				castlingRookFrom = move.castlingRookFrom;
@@ -125,7 +132,7 @@ define(function(require) {
 				position.setPiece(castlingRookTo, Piece.pieces[PieceType.rook][colour]);
 			}
 			
-			else if(move.type === "ep") {
+			else if(type === "ep") {
 				isEnPassant = true;
 				capturedPiece = Piece.pieces[PieceType.pawn][colour.opposite];
 				positionAfter.setPiece(move.epTarget, null);
@@ -137,13 +144,13 @@ define(function(require) {
 				positionAfter.setPiece(to, Piece.pieces[promoteTo][colour]);
 			}
 			
-			var lastChar = move.label.charAt(move.label.length - 1);
+			var lastChar = label.charAt(label.length - 1);
 
 			return {
-				fullmove: parseInt(fullmove),
+				fullmove: fullmove,
 				index: index,
 				label: label,
-				fullLabel: move.fullmove + fullmoveDot + " " + move.label,
+				fullLabel: fullmove + fullmoveDot + " " + label,
 				uciLabel: from.algebraic + to.algebraic + (isPromotion ? promoteTo.sanString.toLowerCase() : ""),
 				colour: colour,
 				from: from,
@@ -162,7 +169,7 @@ define(function(require) {
 				promoteTo: promoteTo,
 				isEnPassant: isEnPassant,
 				capturedPiece: capturedPiece,
-				time: time
+				time: move.time
 			};
 		}
 	};

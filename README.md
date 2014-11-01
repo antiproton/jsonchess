@@ -5,16 +5,6 @@ jsonchess is a client/server protocol for playing chess online.  This project pr
 code to define protocol constants and assist with the implementation on
 both ends.
 
-The protocol has no formal specification and there are currently no plans to
-write one; these modules have been developed up to the point where there is
-sufficient clarity as to how the client and server projects communicate, which
-values are arbitrary and which ones need to match up, etc.  Defining the seams
-between [lightsquare](http://github.com/jsonchess/lightsquare) and
-[lightsquared](http://github.com/jsonchess/lightsquared) is the only purpose of
-the protocol at the moment -- more specification (e.g. exactly what the messages
-mean and when it's valid to send them) will be added if and when there is a need
-for other projects to use the protocol.
-
 Message format
 --------------
 
@@ -72,9 +62,46 @@ General constants.
 
 ###Move
 
-Methods for converting between various jsonchess structures, and Move objects
-with getters and setters.  The Move interface is designed to be compatible with
-Moves from the [chess](http://github.com/gushogg-blake/chess) library.
+Methods for converting between the jsonchess string representation, and move objects.
+
+The string representation is designed to be small, for quick transmission over websockets,
+as well as informative, to avoid as much processing as possible once received.
+
+The move objects have the same public fields as Moves from the [chess](http://github.com/gushogg-blake/chess) library.
+
+####Example:
+
+jsonchess string: ``
+
+Move object:
+
+```
+{
+	fullmove
+	index
+	label
+	fullLabel
+	uciLabel
+	positionBefore
+	positionAfter
+	from
+	to
+	time
+	isPromotion
+	promoteTo
+	piece
+	capturedPiece
+	colour
+	isCastling
+	castlingRookFrom
+	castlingRookTo
+	castlingRightsLost
+	isEnPassant
+	isLegal
+	isCheck
+	isMate
+}
+```
 
 ###Premove
 
