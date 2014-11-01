@@ -5,7 +5,7 @@ define(function(require) {
 	var Square = require("chess/Square");
 	
 	return {
-		encode: function(move) {
+		encodeAndPack: function(move) {
 			move.generateLabels();
 			
 			var castlingRightsLost = "N";
@@ -46,18 +46,54 @@ define(function(require) {
 			return moveString;
 		},
 		
-		decode: function(position, moveString) {
-			var positionAfter = position.getCopy();
-			var fields = quickMove.split(",");
+		unpack: function(string) {
+			var fields = string.split(",");
 			
-			var fullmove = fields[0];
-			var index = parseInt(fields[1]);
-			var label = fields[2];
-			var time = parseInt(fields[3]);
-			var from = Square.byAlgebraic[fields[4]];
-			var to = Square.byAlgebraic[fields[5]];
-			var castlingRightsLost = fields[6];
-			var type = fields[7];
+			var move = {
+				fullmove: parseInt(fields[0]),
+				index: parseInt(fields[1]),
+				label: fields[2],
+				time: parseInt(fields[3]),
+				from: Square.byAlgebraic[fields[4]],
+				to: Square.byAlgebraic[fields[5]],
+				castlingRightsLost: fields[6],
+				type: fields[7]
+			};
+			
+			var castlingRightsLost = [];
+			
+			if(move.castlingRightsLost === "A") {
+				castlingRightsLost = [PieceType.king, PieceType.queen];
+			}
+			
+			else if(move.castlingRigtsLost === "K") {
+				castlingRightsLost = [PieceType.king];
+			}
+			
+			else if(move.castlingRigtsLost === "Q") {
+				castlingRightsLost = [PieceType.queen];
+			}
+			
+			move.castlingRightsLost = castlingRightsLost;
+			
+			if(move.type === "c") {
+				move.castlingRookFrom = Square.byAlgebraic[fields[8]];
+				move.castlingRookTo = Square.byAlgebraic[fields[9]];
+			}
+			
+			else if(move.type === "ep") {
+				move.epTarget = Square.byAlgebraic[fields[8]];
+			}
+			
+			else if(move.type === "p") {
+				move.promoteTo = PieceType.bySanString[fields[8]];
+			}
+			
+			return move;
+		},
+		
+		decode: function(move, position) {
+			var positionAfter = position.getCopy();
 			
 			var colour = position.activeColour;
 			var fullmoveDot = (colour === Colour.white ? "." : "...");
@@ -68,42 +104,34 @@ define(function(require) {
 			var castlingRookFrom = null;
 			var castlingRookTo = null;
 			var castlingRightsLost = [];
-			var capturedPiece = position.board[to.squareNo];
+			var capturedPiece = position.board[move.to.squareNo];
 			
-			positionAfter.setPiece(from, null);
-			positionAfter.setPiece(to, position.board[from.squareNo]);
+			positionAfter.setPiece(move.from, null);
+			positionAfter.setPiece(move.to, position.board[move.from.squareNo]);
 			
-			if(castlingRightsLost !== "N") {
-				if(castlingRightsLost === "K" || castlingRightsLost === "A") {
-					positionAfter.setCastlingRights(colour, "K", false);
-					castlingRightsLost.push(PieceType.king);
-				}
-				
-				if(castlingRightsLost === "Q" || castlingRightsLost === "A") {
-					positionAfter.setCastlingRights(colour, "Q", false);
-					castlingRightsLost.push(PieceType.queen);
-				}
+			for(var i = 0; i < move.castlingRightsLost.length; i++) {
+				positionAfter.setCastlingRights(colour, move.castlingRightsLost[i], false);
 			}
 			
-			if(type === "c") {
+			if(move.type === "c") {
 				isCastling = true;
 				
-				castlingRookFrom = Square.byAlgebraic(fields[8]);
-				castlingRookTo = Square.byAlgebraic(fields[9]);
+				castlingRookFrom = move.castlingRookFrom;
+				castlingRookTo = move.castlingRookTo;
 				
 				position.setPiece(castlingRookFrom, null);
 				position.setPiece(castlingRookTo, Piece.pieces[PieceType.rook][colour]);
 			}
 			
-			else if(type === "ep") {
+			else if(move.type === "ep") {
 				isEnPassant = true;
 				capturedPiece = Piece.pieces[PieceType.pawn][colour.opposite];
-				positionAfter.setPiece(Square.byAlgebraic[fields[8]], null);
+				positionAfter.setPiece(move.epTarget, null);
 			}
 			
 			else if(type === "p") {
 				isPromotion = true;
-				promoteTo = PieceType.fromSanString(fields[8]);
+				promoteTo = move.promoteTo;
 				positionAfter.setPiece(to, Piece.pieces[promoteTo][colour]);
 			}
 
@@ -111,7 +139,7 @@ define(function(require) {
 				fullmove: parseInt(fullmove),
 				index: index,
 				label: label,
-				fullLabel: fullmove + fullmoveDot + " " + label,
+				fullLabel: move.fullmove + fullmoveDot + " " + move.label,
 				uciLabel: from.algebraic + to.algebraic + (isPromotion ? promoteTo.sanString.toLowerCase() : ""),
 				colour: colour,
 				from: from,
@@ -125,7 +153,7 @@ define(function(require) {
 				isCastling: isCastling,
 				castlingRookFrom: castlingRookFrom,
 				castlingRookTo: castlingRookTo,
-				castlingRightsLost: castlingRightsLost,
+				castlingRightsLost: move.castlingRightsLost,
 				isPromotion: isPromotion,
 				promoteTo: promoteTo,
 				isEnPassant: isEnPassant,
