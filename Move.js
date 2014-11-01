@@ -6,6 +6,8 @@ define(function(require) {
 	
 	return {
 		encode: function(move) {
+			move.generateLabels();
+			
 			var castlingRightsLost = "N";
 			
 			if(move.castlingRightsLost.length === 2) {
@@ -19,19 +21,18 @@ define(function(require) {
 			var moveString = ""
 				+ move.fullmove
 				+ "," + move.index
-				+ "," + move.getLabel()
+				+ "," + move.label
 				+ "," + move.time
 				+ "," + move.from.algebraic
 				+ "," + move.to.algebraic
 				+ "," + castlingRightsLost;
-				
 			
 			if(move.isCastling) {
 				moveString += ""
 					+ ",c,"
-					+ move.castlingRookOrigin.algebraic
+					+ move.castlingRookFrom.algebraic
 					+ ","
-					+ move.castlingRookDestination.algebraic;
+					+ move.castlingRookTo.algebraic;
 			}
 			
 			else if(move.isPromotion) {
@@ -64,6 +65,9 @@ define(function(require) {
 			var promoteTo;
 			var isEnPassant = false;
 			var isCastling = false;
+			var castlingRookFrom = null;
+			var castlingRookTo = null;
+			var castlingRightsLost = [];
 			var capturedPiece = position.board[to.squareNo];
 			
 			positionAfter.setPiece(from, null);
@@ -72,48 +76,59 @@ define(function(require) {
 			if(castlingRightsLost !== "N") {
 				if(castlingRightsLost === "K" || castlingRightsLost === "A") {
 					positionAfter.setCastlingRights(colour, "K", false);
+					castlingRightsLost.push(PieceType.king);
 				}
 				
 				if(castlingRightsLost === "Q" || castlingRightsLost === "A") {
 					positionAfter.setCastlingRights(colour, "Q", false);
+					castlingRightsLost.push(PieceType.queen);
 				}
 			}
 			
 			if(type === "c") {
 				isCastling = true;
 				
-				var rookFrom = Square.byAlgebraic(fields[8]);
-				var rookTo = Square.byAlgebraic(fields[9]);
+				castlingRookFrom = Square.byAlgebraic(fields[8]);
+				castlingRookTo = Square.byAlgebraic(fields[9]);
 				
-				position.setPiece(rookFrom, null);
-				position.setPiece(rookTo, Piece.pieces[PieceType.rook][colour]);
+				position.setPiece(castlingRookFrom, null);
+				position.setPiece(castlingRookTo, Piece.pieces[PieceType.rook][colour]);
 			}
 			
 			else if(type === "ep") {
 				isEnPassant = true;
 				capturedPiece = Piece.pieces[PieceType.pawn][colour.opposite];
-				positionAfter.setPiece(Square.byAlgebraic[fields[9]], null);
+				positionAfter.setPiece(Square.byAlgebraic[fields[8]], null);
 			}
 			
 			else if(type === "p") {
 				isPromotion = true;
-				promoteTo = PieceType.fromSanString(fields[9]);
+				promoteTo = PieceType.fromSanString(fields[8]);
 				positionAfter.setPiece(to, Piece.pieces[promoteTo][colour]);
 			}
-			
+
 			return {
 				fullmove: parseInt(fullmove),
+				index: index,
 				label: label,
 				fullLabel: fullmove + fullmoveDot + " " + label,
+				uciLabel: from.algebraic + to.algebraic + (isPromotion ? promoteTo.sanString.toLowerCase() : ""),
 				colour: colour,
 				from: from,
 				to: to,
+				piece: position.board[from.squareNo],
+				positionBefore: position,
+				positionAfter: positionAfter,
 				isCheck: isCheck,
 				isMate: isMate,
+				isLegal: true,
 				isCastling: isCastling,
+				castlingRookFrom: castlingRookFrom,
+				castlingRookTo: castlingRookTo,
+				castlingRightsLost: castlingRightsLost,
 				isPromotion: isPromotion,
 				promoteTo: promoteTo,
-				resultingFen: positionAfter.getFen(),
+				isEnPassant: isEnPassant,
 				capturedPiece: capturedPiece,
 				time: time
 			};
