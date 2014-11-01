@@ -7,6 +7,7 @@ define(function(require) {
 	function Premove(position, from, to, promoteTo) {
 		this.isValid = false;
 		this._position = position;
+		this.board = position.board.slice();
 		this.from = from;
 		this.to = to;
 		this.promoteTo = promoteTo || PieceType.queen;
@@ -19,10 +20,6 @@ define(function(require) {
 			this._isPromotion = false;
 			this._check();
 		}
-	}
-	
-	Premove.prototype.getBoardArray = function() {
-		return this._position.getBoardArray(); //FIXME
 	}
 	
 	Premove.prototype._check = function() {
@@ -39,12 +36,13 @@ define(function(require) {
 		}
 		
 		if(this.isValid) {
-			this._position.setPiece(
-				this.to,
-				(this._isPromotion ? Piece.pieces[this.promoteTo][this._colour] : this.piece)
+			this.board[this.to.squareNo] = (
+				this._isPromotion ?
+				Piece.pieces[this.promoteTo][this._colour] :
+				this.piece
 			);
 			
-			this._position.setPiece(this.from, null);
+			this.board[this.from.squareNo] = null;
 		}
 	}
 	
@@ -128,20 +126,20 @@ define(function(require) {
 
 	Premove.prototype._checkCastlingMove = function() {
 		var file = (this.to.squareNo < this.from.squareNo ? "a" : "h");
-		var rookOriginX = (file === "a" ? 0 : 7);
-		var rookDestinationX = (file === "a" ? 3 : 5);
-		var rookOrigin = Square.fromCoords(new Coords(rookOriginX, this.from.coords.y));
-		var rookDestination = Square.fromCoords(new Coords(rookDestinationX, this.from.coords.y));
+		var rookFromX = (file === "a" ? 0 : 7);
+		var rookToX = (file === "a" ? 3 : 5);
+		var rookFrom = Square.byCoords[rookFromX][this.from.coords.y];
+		var rookTo = Square.byCoords[rookToX][this.from.coords.y];
 		
 		if(
 			Math.abs(this.to.coords.x - this.from.coords.x) === 2
 			&& !this._position.moveIsBlocked(this.from, this.to)
 			&& this._position.getCastlingRights(this._colour, file)
-			&& this._position.board[rookOrigin.squareNo] === Piece.pieces[PieceType.rook][this._colour]
+			&& this._position.board[rookFrom.squareNo] === Piece.pieces[PieceType.rook][this._colour]
 		) {
 			this.isValid = true;
-			this._position.setPiece(rookOrigin, null);
-			this._position.setPiece(rookDestination, Piece.pieces[PieceType.rook][this._colour]);
+			this.board[rookFrom.squareNo] = null;
+			this.board[rookTo.squareNo] = Piece.pieces[PieceType.rook][this._colour];
 		}
 	}
 	
