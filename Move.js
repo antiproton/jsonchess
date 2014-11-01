@@ -103,11 +103,13 @@ define(function(require) {
 			var isCastling = false;
 			var castlingRookFrom = null;
 			var castlingRookTo = null;
-			var castlingRightsLost = [];
 			var capturedPiece = position.board[move.to.squareNo];
+			var piece = position.board[move.from.squareNo];
+			var isCheck = false;
+			var isMate = false;
 			
 			positionAfter.setPiece(move.from, null);
-			positionAfter.setPiece(move.to, position.board[move.from.squareNo]);
+			positionAfter.setPiece(move.to, piece);
 			
 			for(var i = 0; i < move.castlingRightsLost.length; i++) {
 				positionAfter.setCastlingRights(colour, move.castlingRightsLost[i], false);
@@ -134,6 +136,8 @@ define(function(require) {
 				promoteTo = move.promoteTo;
 				positionAfter.setPiece(to, Piece.pieces[promoteTo][colour]);
 			}
+			
+			var lastChar = move.label.charAt(move.label.length - 1);
 
 			return {
 				fullmove: parseInt(fullmove),
@@ -144,11 +148,11 @@ define(function(require) {
 				colour: colour,
 				from: from,
 				to: to,
-				piece: position.board[from.squareNo],
+				piece: piece,
 				positionBefore: position,
 				positionAfter: positionAfter,
-				isCheck: isCheck,
-				isMate: isMate,
+				isCheck: (lastChar === "#" || lastChar === "+"),
+				isMate: (lastChar === "#"),
 				isLegal: true,
 				isCastling: isCastling,
 				castlingRookFrom: castlingRookFrom,
