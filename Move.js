@@ -6,8 +6,6 @@ define(function(require) {
 	
 	return {
 		encodeAndPack: function(move) {
-			move.generateLabels();
-			
 			var castlingRightsLost = "N";
 			
 			if(move.castlingRightsLost.length === 2) {
@@ -18,6 +16,8 @@ define(function(require) {
 				castlingRightsLost = move.castlingRightsLost[0].sanString;
 			}
 			
+			var epTarget = move.positionAfter.epTarget;
+			
 			var moveString = ""
 				+ move.fullmove
 				+ "," + move.index
@@ -25,7 +25,8 @@ define(function(require) {
 				+ "," + move.time
 				+ "," + move.from.algebraic
 				+ "," + move.to.algebraic
-				+ "," + castlingRightsLost;
+				+ "," + castlingRightsLost
+				+ "," + (epTarget ? epTarget.algebraic : "N");
 			
 			if(move.isCastling) {
 				moveString += ""
@@ -60,6 +61,10 @@ define(function(require) {
 				type: fields[7]
 			};
 			
+			var epTarget = fields[8];
+			
+			move.epTarget = (epTarget === "N" ? null : Square.byAlgebraic[epTarget]);
+			
 			var castlingRightsLost = [];
 			
 			if(move.castlingRightsLost === "A") {
@@ -77,16 +82,16 @@ define(function(require) {
 			move.castlingRightsLost = castlingRightsLost;
 			
 			if(move.type === "c") {
-				move.castlingRookFrom = Square.byAlgebraic[fields[8]];
-				move.castlingRookTo = Square.byAlgebraic[fields[9]];
+				move.castlingRookFrom = Square.byAlgebraic[fields[9]];
+				move.castlingRookTo = Square.byAlgebraic[fields[10]];
 			}
 			
 			else if(move.type === "ep") {
-				move.epTarget = Square.byAlgebraic[fields[8]];
+				move.epTarget = Square.byAlgebraic[fields[9]];
 			}
 			
 			else if(move.type === "p") {
-				move.promoteTo = PieceType.bySanString[fields[8]];
+				move.promoteTo = PieceType.bySanString[fields[9]];
 			}
 			
 			return move;
@@ -117,6 +122,7 @@ define(function(require) {
 			
 			positionAfter.setPiece(from, null);
 			positionAfter.setPiece(to, piece);
+			positionAfter.epTarget = move.epTarget;
 			
 			for(var i = 0; i < move.castlingRightsLost.length; i++) {
 				positionAfter.setCastlingRights(colour, move.castlingRightsLost[i], false);
@@ -142,6 +148,21 @@ define(function(require) {
 				isPromotion = true;
 				promoteTo = move.promoteTo;
 				positionAfter.setPiece(to, Piece.pieces[promoteTo][colour]);
+			}
+			
+			
+			positionAfter.activeColour = colour.opposite;
+			
+			if(colour === Colour.black) {
+				positionAfter.fullmove++;
+			}
+			
+			if(capturedPiece !== null || piece.type === PieceType.pawn) {
+				positionAfter.fiftymoveClock = 0;
+			}
+			
+			else {
+				positionAfter.fiftymoveClock++;
 			}
 			
 			var lastChar = label.charAt(label.length - 1);
