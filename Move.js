@@ -37,7 +37,7 @@ define(function(require) {
 			}
 			
 			else if(move.isPromotion) {
-				moveString += ",p," + move.promoteTo.type.sanString;
+				moveString += ",p," + move.promoteTo.sanString;
 			}
 			
 			else if(move.isEnPassant) {
