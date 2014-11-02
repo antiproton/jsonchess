@@ -58,12 +58,11 @@ define(function(require) {
 				from: Square.byAlgebraic[fields[4]],
 				to: Square.byAlgebraic[fields[5]],
 				castlingRightsLost: fields[6],
-				type: fields[7]
+				epTarget: fields[7],
+				type: fields[8]
 			};
 			
-			var epTarget = fields[8];
-			
-			move.epTarget = (epTarget === "N" ? null : Square.byAlgebraic[epTarget]);
+			move.epTarget = (move.epTarget === "N" ? null : Square.byAlgebraic[move.epTarget]);
 			
 			var castlingRightsLost = [];
 			
@@ -134,8 +133,8 @@ define(function(require) {
 				castlingRookFrom = move.castlingRookFrom;
 				castlingRookTo = move.castlingRookTo;
 				
-				position.setPiece(castlingRookFrom, null);
-				position.setPiece(castlingRookTo, Piece.pieces[PieceType.rook][colour]);
+				positionAfter.setPiece(castlingRookFrom, null);
+				positionAfter.setPiece(castlingRookTo, Piece.pieces[PieceType.rook][colour]);
 			}
 			
 			else if(type === "ep") {
