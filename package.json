@@ -1,6 +1,6 @@
 {
 	"name": "jsonchess",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Protocol for playing chess online",
 	"author": "Gus Hogg-Blake <gus@hogg-blake.co.uk>",
 	"dependencies": {
