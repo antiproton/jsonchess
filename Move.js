@@ -41,7 +41,7 @@ define(function(require) {
 			}
 			
 			else if(move.isEnPassant) {
-				moveString += ",ep," + move.epTarget.algebraic;
+				moveString += ",ep," + move.positionBefore.epTarget.algebraic;
 			}
 			
 			return moveString;
