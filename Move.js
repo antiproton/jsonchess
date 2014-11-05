@@ -3,6 +3,7 @@ define(function(require) {
 	var Piece = require("chess/Piece");
 	var Colour = require("chess/Colour");
 	var Square = require("chess/Square");
+	var getEpPawn = require("chess/getEpPawn");
 	
 	return {
 		encodeAndPack: function(move) {
@@ -41,7 +42,7 @@ define(function(require) {
 			}
 			
 			else if(move.isEnPassant) {
-				moveString += ",ep," + move.positionBefore.epTarget.algebraic;
+				moveString += ",ep," + getEpPawn(move.from, move.to).algebraic;
 			}
 			
 			return moveString;
@@ -86,7 +87,7 @@ define(function(require) {
 			}
 			
 			else if(move.type === "ep") {
-				move.epTarget = Square.byAlgebraic[fields[9]];
+				move.epCapture = Square.byAlgebraic[fields[9]];
 			}
 			
 			else if(move.type === "p") {
@@ -140,7 +141,7 @@ define(function(require) {
 			else if(type === "ep") {
 				isEnPassant = true;
 				capturedPiece = Piece.pieces[PieceType.pawn][colour.opposite];
-				positionAfter.setPiece(move.epTarget, null);
+				positionAfter.setPiece(move.epCapture, null);
 			}
 			
 			else if(type === "p") {
