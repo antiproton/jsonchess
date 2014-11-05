@@ -62,46 +62,46 @@ General constants.
 
 ###Move
 
-Methods for converting between the jsonchess string representation, and move objects.
+jsonchess uses a custom encoding format for moves.  Its purpose is to be the best compromise between size and speed of decoding; having as much information as necessary for a client to avoid having to do expensive chess rules calculations, while not including overly verbose pieces of information such as the full FEN string of the resulting position.
 
-The string representation is designed to be small, for quick transmission over websockets,
-as well as informative, to avoid as much processing as possible once received.
+Move contains methods for converting between the jsonchess string representation, and move objects.
 
 The move objects have the same public fields as Moves from the [chess](http://github.com/gushogg-blake/chess) library.
 
-####Example:
+####Encoding
 
-jsonchess string: ``
+The string representation consists of a variable number of fields, comma-separated.  There are 8 initial fields which are always present:
 
-Move object:
+- The fullmove number
+- The move index
+- The SAN move label
+- A numeric timestamp of when the move was made
+- The 'from' square's algebraic representation (king origin for castling)
+- The 'to' square's algebraic representation (king destination for castling)
+- One of `N`, `K`, `Q` or `A` to indicate which castling rights, if any, were lost in the move
+- The new en-passant target square's algebraic representation, or `N` if not a double pawn move
 
-```
-{
-	fullmove
-	index
-	label
-	fullLabel
-	uciLabel
-	positionBefore
-	positionAfter
-	from
-	to
-	time
-	isPromotion
-	promoteTo
-	piece
-	capturedPiece
-	colour
-	isCastling
-	castlingRookFrom
-	castlingRookTo
-	castlingRightsLost
-	isEnPassant
-	isLegal
-	isCheck
-	isMate
-}
-```
+For non-castling, non-promotion, non-en-passant moves that's all there is.
+
+For castling moves there are 3 extra fields:
+
+- `c`, to indicate castling
+- The rook origin square's algebraic representation
+- The rook destination square's algebraic representation
+
+For promotion moves there are 2 extra fields:
+
+- `p` to indicate promotion
+- The SAN representation of the promotion piece type (N, B, R or Q)
+
+For en-passant moves there are 2 extra fields:
+
+- `ep` to indicate en-passant
+- The captured pawn square's algebraic representation
+
+####Decoding
+
+Knowledge of the initial position is required for calculating certain aspects of the move, e.g. the captured piece.  For regular moves, the type of piece that moved must be calculated from the initial position.  Most necessary decoding calculations are square lookups such as these, or simple conditionals.
 
 ###Premove
 
