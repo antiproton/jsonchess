@@ -27,8 +27,8 @@ game with id "123" looks like this:
 		}
 	}
 
-Feeds
------
+Feeds (deprecated)
+------------------
 
 For basic updates, the protocol has a concept of "feeds", which are streams of
 data represented by a name.  The purpose of this is mostly just to provide some
@@ -45,6 +45,39 @@ The currently defined feeds are:
 - `open_seeks` - the client receives updates when a new seek is created (if the seek
 	options would allow the player to accept) and when a seek expires.  (The client
 	requests the full seek list separately.)
+
+Generic updates/channels
+------------------------
+
+The feeds system will be superseded by a generic updates system, which will
+use the concept of channels to decide which users to send different updates to.
+
+Generic update messages will consist of an operation, a key describing the object
+that the operation will apply to, and a value.
+
+The operations are:
+
+- add - add an item to an array.
+- remove - remove an item from an array.
+- update - update a property on an object.
+
+The keys are object property names with a syntax for describing nested properties
+and objects within arrays.  They will look like normal JavaScript object notation,
+with two differences:
+
+- the dot can be used to reference things in arrays by the index (which would be a
+syntax error in JS).
+- a colon can be used after an array, followed by an id, which will be used to look
+up whatever object within the array that has that id.  This is to fit with how things
+are done in the rest of the protocol and protect against scenarios such as a client
+receiving an update for an item in an array which has already been deleted, and consequently
+updating the wrong item, because it received the messages out of order.
+
+The value means different things depending on the operation:
+
+- add - the value gets added to the array.
+- remove - the value is the id of the item to be removed from the array.
+- update - the new value of the field.
 
 Each JavaScript file in this repo is described briefly below.
 
